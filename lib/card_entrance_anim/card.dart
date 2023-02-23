@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'model.dart';
+import 'card_model.dart';
 
 class TicketCard extends StatelessWidget {
   final FlightStopTicket stop;

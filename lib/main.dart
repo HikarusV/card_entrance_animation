@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'card.dart';
-import 'model.dart';
+import 'package:test_anim/card_entrance_anim/test_anim.dart';
+import 'package:test_anim/sliding_paralax/sliding_cards.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,92 +17,82 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const TestAnim(),
+      home: const Menu(),
     );
   }
 }
 
-class TestAnim extends StatefulWidget {
-  const TestAnim({Key? key}) : super(key: key);
-
-  @override
-  State<TestAnim> createState() => _TestAnimState();
-}
-
-class _TestAnimState extends State<TestAnim> with TickerProviderStateMixin {
-  List<FlightStopTicket> stops = [
-    FlightStopTicket("Sahara", "SHE", "Macao", "MAC", "SE2341"),
-    FlightStopTicket("Macao", "MAC", "Cape Verde", "CAP", "KU2342"),
-    FlightStopTicket("Cape Verde", "CAP", "Ireland", "IRE", "KR3452"),
-    FlightStopTicket("Ireland", "IRE", "Sahara", "SHE", "MR4321"),
-  ];
-
-  late AnimationController cardEntranceAnimationController;
-  late List<Animation> ticketAnimations;
-  late Animation fabAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    cardEntranceAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1100),
-    );
-
-    ticketAnimations = stops.map((stop) {
-      int index = stops.indexOf(stop);
-      double start = index * 0.1;
-      double duration = 0.6;
-      double end = duration + start;
-      return Tween<double>(begin: 800.0, end: 0.0).animate(CurvedAnimation(
-          parent: cardEntranceAnimationController,
-          curve: Interval(start, end, curve: Curves.decelerate)));
-    }).toList();
-    fabAnimation = CurvedAnimation(
-        parent: cardEntranceAnimationController,
-        curve: const Interval(0.7, 1.0, curve: Curves.decelerate));
-    cardEntranceAnimationController.forward();
-  }
-
-  @override
-  void dispose() {
-    cardEntranceAnimationController.dispose();
-    super.dispose();
-  }
+class Menu extends StatelessWidget {
+  const Menu({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Test Animation'),
+        title: const Text('Flutter Labs'),
       ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-              child: SingleChildScrollView(
-            child: Column(
-              children: _buildTickets().toList(),
-            ),
-          )),
+      body: Column(
+        children: const [
+          SizedBox(
+            height: 20,
+          ),
+          MenuCard(
+            title: 'Card Animation',
+            pages: TestAnim(),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          SlidingCardsView(),
         ],
       ),
     );
   }
+}
 
-  Iterable<Widget> _buildTickets() {
-    return stops.map((stop) {
-      int index = stops.indexOf(stop);
-      return AnimatedBuilder(
-        animation: cardEntranceAnimationController,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-          child: TicketCard(stop: stop),
+class MenuCard extends StatelessWidget {
+  const MenuCard({Key? key, required this.title, required this.pages})
+      : super(key: key);
+  final String title;
+  final Widget pages;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      margin: const EdgeInsets.only(
+        left: 20,
+        right: 20,
+        bottom: 20,
+      ),
+      decoration: const BoxDecoration(
+        // color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            spreadRadius: 2,
+          )
+        ],
+      ),
+      child: Material(
+        color: Colors.white,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => pages,
+              ),
+            );
+          },
+          child: Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.all(20),
+            child: Text(title),
+          ),
         ),
-        builder: (context, child) => Transform.translate(
-          offset: Offset(0.0, ticketAnimations[index].value),
-          child: child,
-        ),
-      );
-    });
+      ),
+    );
   }
 }
